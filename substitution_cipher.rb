@@ -46,6 +46,14 @@ module SubstitutionCipher
     # Returns: String
     def self.encrypt(document, key)
       # TODO: encrypt string using a permutation cipher
+      # 1. convert document into an array of ascii code
+      # 2. substitute values according to the position in the lookup_table (position => value)
+      # 3. convert ascii code back into letters
+      lookup_table = (0..127).to_a.shuffle!(random: Random.new(key))
+      document.to_s.chars
+              .map(&:ord)
+              .map { |c| lookup_table.at(c) }
+              .map(&:chr).join
     end
 
     # Decrypts String document using integer key
@@ -55,6 +63,14 @@ module SubstitutionCipher
     # Returns: String
     def self.decrypt(document, key)
       # TODO: decrypt string using a permutation cipher
+      # 1. convert document into an array of ascii code
+      # 2. substitute values according to the value in the lookup_table (value => position)
+      # 3. convert ascii code back into letters
+      lookup_table = (0..127).to_a.shuffle!(random: Random.new(key))
+      document.to_s.chars
+              .map(&:ord)
+              .map { |c| lookup_table.index(c) }
+              .map(&:chr).join
     end
   end
 end
