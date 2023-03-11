@@ -14,9 +14,10 @@ module SubstitutionCipher
       # 1. convert document into an array of ascii code
       # 2. shift document by adding $key to every ascii value
       # 3. convert ascii code back into letters
-      ascii = document.to_s.chars.map(&:ord)
-      shifted = ascii.map { |c| c + key }
-      shifted.map(&:chr).join
+      document.to_s.chars
+              .map(&:ord)
+              .map { |c| c + key }
+              .map(&:chr).join
     end
 
     # Decrypts String document using integer key
@@ -29,9 +30,10 @@ module SubstitutionCipher
       # 1. convert document into an array of ascii code
       # 2. shift document by reducing $key to every ascii value
       # 3. convert ascii code back into letters
-      ascii = document.to_s.chars.map(&:ord)
-      shifted = ascii.map { |c| c - key }
-      shifted.map(&:chr).join
+      document.to_s.chars
+              .map(&:ord)
+              .map { |c| c - key }
+              .map(&:chr).join
     end
   end
 
