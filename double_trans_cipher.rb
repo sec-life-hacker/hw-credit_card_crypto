@@ -11,13 +11,13 @@ module DoubleTranspositionCipher
     # 4. sort columns of each row in predictibly random way
     # 5. return joined cyphertext
     matrix = gen_matrix(document)
-    matrix.shuffle(random: Random.new(key)).map do |s|
-      s.shuffle(random: Random.new(key))
-    end.join.to_s
+    randomize(matrix, key).join.to_s
   end
 
   def self.decrypt(ciphertext, key)
     # TODO: FILL THIS IN!
+    encrypted_matrix = gen_matrix(ciphertext)
+    unrandomize(encrypted_matrix, key).map(&:join).join('').delete('#')
   end
 
   def self.gen_matrix(document)
@@ -30,5 +30,16 @@ module DoubleTranspositionCipher
       .to_a
   end
 
-  def self.randomize(matrix, key); end
+  def self.randomize(matrix, key)
+    matrix.shuffle(random: Random.new(key)).map do |s|
+      s.shuffle(random: Random.new(key))
+    end
+  end
+
+  def self.unrandomize(matrix, key)
+    transformed_order = (0...matrix.length).to_a.shuffle!(random: Random.new(key))
+    matrix.sort_by.with_index { |_, i| transformed_order[i] }.map do |c|
+      c.sort_by.with_index { |_, i| transformed_order[i] }
+    end
+  end
 end
