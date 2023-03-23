@@ -2,8 +2,8 @@
 
 require_relative '../credit_card'
 require_relative '../substitution_cipher'
-require_relative '../double_trans_cipher.rb'
-require_relative '../sk_cipher.rb'
+require_relative '../double_trans_cipher'
+require_relative '../sk_cipher'
 require 'minitest/autorun'
 
 describe 'Test card info encryption' do
@@ -11,64 +11,35 @@ describe 'Test card info encryption' do
     @cc = CreditCard.new('4916603231464963', 'Mar-30-2020',
                          'Soumya Ray', 'Visa')
     @key = 3
-    @sk_key = ModernSymmetricCipher.generate_new_key()
+    @sk_key = ModernSymmetricCipher.generate_new_key
+
+    @enc = {
+      'caesar' => SubstitutionCipher::Caesar.encrypt(@cc, @key),
+      'permutation' => SubstitutionCipher::Permutation.encrypt(@cc, @key),
+      'double transposition' => DoubleTranspositionCipher.encrypt(@cc, @key),
+      'modern symmetric' => ModernSymmetricCipher.encrypt(@cc, @sk_key)
+    }
+
+    @dec = {
+      'caesar' => SubstitutionCipher::Caesar.decrypt(@enc['caesar'], @key),
+      'permutation' => SubstitutionCipher::Permutation.decrypt(@enc['permutation'], @key),
+      'double transposition' => DoubleTranspositionCipher.decrypt(@enc['double transposition'], @key),
+      'modern symmetric' => ModernSymmetricCipher.decrypt(@enc['modern symmetric'], @sk_key)
+    }
   end
 
-  describe 'Using Caesar cipher' do
-    it 'should encrypt card information' do
-      enc = SubstitutionCipher::Caesar.encrypt(@cc, @key)
-      _(enc).wont_equal @cc.to_s
-      _(enc).wont_be_nil
-    end
+  ['caesar', 'permutation', 'double transposition', 'modern symmetric'].each do |method|
+    describe "Using #{method} cipher" do
+      it 'should encrypt card information' do
+        enc = @enc[method]
+        _(enc).wont_equal @cc.to_s
+        _(enc).wont_be_nil
+      end
 
-    it 'should decrypt text' do
-      enc = SubstitutionCipher::Caesar.encrypt(@cc, @key)
-      dec = SubstitutionCipher::Caesar.decrypt(enc, @key)
-      _(dec).must_equal @cc.to_s
-    end
-  end
-
-  describe 'Using Permutation cipher' do
-    it 'should encrypt card information' do
-      enc = SubstitutionCipher::Permutation.encrypt(@cc, @key)
-      _(enc).wont_equal @cc.to_s
-      _(enc).wont_be_nil
-    end
-
-    it 'should decrypt text' do
-      enc = SubstitutionCipher::Permutation.encrypt(@cc, @key)
-      dec = SubstitutionCipher::Permutation.decrypt(enc, @key)
-      _(dec).must_equal @cc.to_s
-    end
-  end
-
-  # TODO: Add tests for double transposition and modern symmetric key ciphers
-  #       Can you DRY out the tests using metaprogramming? (see lecture slide)
-  describe 'Using Double Transposition Cipher cipher' do
-    it 'should encrypt card information' do
-      enc = DoubleTranspositionCipher.encrypt(@cc, @key)
-      _(enc).wont_equal @cc.to_s
-      _(enc).wont_be_nil
-    end
-
-    it 'should decrypt text' do
-      enc = DoubleTranspositionCipher.encrypt(@cc, @key)
-      dec = DoubleTranspositionCipher.decrypt(enc, @key)
-      _(dec).must_equal @cc.to_s
-    end
-
-  end
-    describe 'Using Modern Symmetric Cipher' do
-    it 'should encrypt card information' do
-      enc = ModernSymmetricCipher.encrypt(@cc, @sk_key)
-      _(enc).wont_equal @cc.to_s
-      _(enc).wont_be_nil
-    end
-
-    it 'should decrypt text' do
-      enc = ModernSymmetricCipher.encrypt(@cc, @sk_key)
-      dec = ModernSymmetricCipher.decrypt(enc, @sk_key)
-      _(dec).must_equal @cc.to_s
+      it 'should decrypt text' do
+        dec = @dec[method]
+        _(dec).must_equal @cc.to_s
+      end
     end
   end
 end
